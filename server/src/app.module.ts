@@ -5,6 +5,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { HousesModule } from './modules/houses/houses.module';
 import { FurnitureModule } from './modules/furniture/furniture.module';
+import { PlacementsModule } from './modules/placements/placements.module';
 
 @Module({
   imports: [
@@ -14,8 +15,8 @@ import { FurnitureModule } from './modules/furniture/furniture.module';
     UsersModule,
     HousesModule,
     FurnitureModule,
+    PlacementsModule,
     // 각 모듈은 개발하면서 여기에 연결합니다
-    // PlacementsModule,
     // CommunityModule,
     // ReportsModule,
     // PurchasesModule,
