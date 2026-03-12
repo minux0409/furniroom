@@ -80,14 +80,15 @@ model UserSubscription {
 // 집
 // ==========================================
 model House {
-  id             String   @id @default(uuid())
-  userId         String   @map("user_id")
-  name           String
-  thumbnailUrl   String?  @map("thumbnail_url")
-  isPublic       Boolean  @default(false) @map("is_public")
-  blueprintData  Json?    @map("blueprint_data")
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id               String   @id @default(uuid())
+  userId           String   @map("user_id")
+  name             String
+  thumbnailUrl     String?  @map("thumbnail_url")
+  isPublic         Boolean  @default(false) @map("is_public")
+  blueprintData    Json?    @map("blueprint_data")
+  originalHouseId  String?  @map("original_house_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
 
   user       User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
   placements HouseFurniturePlacement[]
