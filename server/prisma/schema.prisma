@@ -1,0 +1,183 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// 인증 제공자
+// ==========================================
+enum AuthProvider {
+  google
+  apple
+}
+
+// ==========================================
+// 가구 기본 형태
+// ==========================================
+enum ShapeType {
+  box
+  cylinder
+  l_shape
+  custom
+}
+
+// ==========================================
+// 신고 대상 타입
+// ==========================================
+enum ReportTargetType {
+  furniture
+  house
+}
+
+// ==========================================
+// 유저
+// ==========================================
+model User {
+  id               String    @id @default(uuid())
+  email            String    @unique
+  name             String
+  profileImageUrl  String?   @map("profile_image_url")
+  authProvider     AuthProvider @map("auth_provider")
+  authProviderId   String    @map("auth_provider_id")
+  deletedAt        DateTime? @map("deleted_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  subscription     UserSubscription?
+  houses           House[]
+  furnitures       Furniture[]
+  reports          Report[]
+
+  @@unique([authProvider, authProviderId])
+  @@map("users")
+}
+
+// ==========================================
+// 유저 슬롯 구독 (추가 구매)
+// ==========================================
+model UserSubscription {
+  id                   String   @id @default(uuid())
+  userId               String   @unique @map("user_id")
+  extraHouseSlots      Int      @default(0) @map("extra_house_slots")
+  extraFurnitureSlots  Int      @default(0) @map("extra_furniture_slots")
+  purchasedAt          DateTime @default(now()) @map("purchased_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_subscriptions")
+}
+
+// ==========================================
+// 집
+// ==========================================
+model House {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  name           String
+  thumbnailUrl   String?  @map("thumbnail_url")
+  isPublic       Boolean  @default(false) @map("is_public")
+  blueprintData  Json?    @map("blueprint_data")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  user       User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  placements HouseFurniturePlacement[]
+
+  @@map("houses")
+}
+
+// ==========================================
+// 가구
+// ==========================================
+model Furniture {
+  id                  String    @id @default(uuid())
+  ownerId             String    @map("owner_id")
+  name                String
+  widthCm             Float     @map("width_cm")
+  depthCm             Float     @map("depth_cm")
+  heightCm            Float     @map("height_cm")
+  shapeType           ShapeType @default(box) @map("shape_type")
+  imageUrl            String?   @map("image_url")
+  modelUrl            String?   @map("model_url")
+  isPublic            Boolean   @default(false) @map("is_public")
+  originalFurnitureId String?   @map("original_furniture_id")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  owner      User                     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  tags       FurnitureTag[]
+  placements HouseFurniturePlacement[]
+
+  @@map("furniture")
+}
+
+// ==========================================
+// 가구 태그
+// ==========================================
+model FurnitureTag {
+  id          String @id @default(uuid())
+  furnitureId String @map("furniture_id")
+  tag         String
+
+  furniture Furniture @relation(fields: [furnitureId], references: [id], onDelete: Cascade)
+
+  @@unique([furnitureId, tag])
+  @@map("furniture_tags")
+}
+
+// ==========================================
+// 집 내 가구 배치
+// ==========================================
+model HouseFurniturePlacement {
+  id          String   @id @default(uuid())
+  houseId     String   @map("house_id")
+  furnitureId String   @map("furniture_id")
+  posX        Float    @default(0) @map("pos_x")
+  posY        Float    @default(0) @map("pos_y")
+  posZ        Float    @default(0) @map("pos_z")
+  rotY        Float    @default(0) @map("rot_y")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  house     House     @relation(fields: [houseId], references: [id], onDelete: Cascade)
+  furniture Furniture @relation(fields: [furnitureId], references: [id], onDelete: Cascade)
+
+  @@map("house_furniture_placements")
+}
+
+// ==========================================
+// 신고
+// ==========================================
+model Report {
+  id           String           @id @default(uuid())
+  reporterId   String           @map("reporter_id")
+  targetType   ReportTargetType @map("target_type")
+  targetId     String           @map("target_id")
+  reason       String
+  createdAt    DateTime         @default(now()) @map("created_at")
+
+  reporter User @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@map("reports")
+}
+
+// ==========================================
+// 구매 내역
+// ==========================================
+model Purchase {
+  id                  String   @id @default(uuid())
+  userId              String   @map("user_id")
+  extraHouseSlots     Int      @default(0) @map("extra_house_slots")
+  extraFurnitureSlots Int      @default(0) @map("extra_furniture_slots")
+  amountUsd           Float    @map("amount_usd")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@map("purchases")
+}
