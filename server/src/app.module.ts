@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
+import { HousesModule } from './modules/houses/houses.module';
 
 @Module({
   imports: [
@@ -10,8 +11,8 @@ import { UsersModule } from './modules/users/users.module';
     PrismaModule,
     AuthModule,
     UsersModule,
+    HousesModule,
     // 각 모듈은 개발하면서 여기에 연결합니다
-    // HousesModule,
     // FurnitureModule,
     // PlacementsModule,
     // CommunityModule,
