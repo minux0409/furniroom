@@ -1,0 +1,108 @@
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import type {
+  MainTabParamList,
+  HomeStackParamList,
+  FurnitureStackParamList,
+  CommunityStackParamList,
+  ProfileStackParamList,
+} from "./types";
+import { PlaceholderScreen } from "@/components/PlaceholderScreen";
+
+const Tab = createBottomTabNavigator<MainTabParamList>();
+const HomeStack = createNativeStackNavigator<HomeStackParamList>();
+const FurnitureStack = createNativeStackNavigator<FurnitureStackParamList>();
+const CommunityStack = createNativeStackNavigator<CommunityStackParamList>();
+const ProfileStack = createNativeStackNavigator<ProfileStackParamList>();
+
+function HomeNavigator() {
+  return (
+    <HomeStack.Navigator>
+      <HomeStack.Screen name="HouseList">
+        {() => <PlaceholderScreen name="내 집 목록" />}
+      </HomeStack.Screen>
+      <HomeStack.Screen name="HouseEditor">
+        {() => <PlaceholderScreen name="설계도 편집기 (2D)" />}
+      </HomeStack.Screen>
+      <HomeStack.Screen name="House3DView">
+        {() => <PlaceholderScreen name="3D 뷰어" />}
+      </HomeStack.Screen>
+    </HomeStack.Navigator>
+  );
+}
+
+function FurnitureNavigator() {
+  return (
+    <FurnitureStack.Navigator>
+      <FurnitureStack.Screen name="FurnitureList">
+        {() => <PlaceholderScreen name="내 가구 목록" />}
+      </FurnitureStack.Screen>
+      <FurnitureStack.Screen name="FurnitureDetail">
+        {() => <PlaceholderScreen name="가구 상세" />}
+      </FurnitureStack.Screen>
+      <FurnitureStack.Screen name="FurnitureCreate">
+        {() => <PlaceholderScreen name="가구 등록" />}
+      </FurnitureStack.Screen>
+    </FurnitureStack.Navigator>
+  );
+}
+
+function CommunityNavigator() {
+  return (
+    <CommunityStack.Navigator>
+      <CommunityStack.Screen name="CommunityFeed">
+        {() => <PlaceholderScreen name="커뮤니티 피드" />}
+      </CommunityStack.Screen>
+      <CommunityStack.Screen name="CommunityHouseDetail">
+        {() => <PlaceholderScreen name="커뮤니티 집 상세" />}
+      </CommunityStack.Screen>
+      <CommunityStack.Screen name="CommunityFurnitureDetail">
+        {() => <PlaceholderScreen name="커뮤니티 가구 상세" />}
+      </CommunityStack.Screen>
+    </CommunityStack.Navigator>
+  );
+}
+
+function ProfileNavigator() {
+  return (
+    <ProfileStack.Navigator>
+      <ProfileStack.Screen name="Profile">
+        {() => <PlaceholderScreen name="내 프로필" />}
+      </ProfileStack.Screen>
+      <ProfileStack.Screen name="SlotShop">
+        {() => <PlaceholderScreen name="슬롯 상점" />}
+      </ProfileStack.Screen>
+      <ProfileStack.Screen name="PurchaseHistory">
+        {() => <PlaceholderScreen name="구매 내역" />}
+      </ProfileStack.Screen>
+    </ProfileStack.Navigator>
+  );
+}
+
+export function MainNavigator() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeNavigator}
+        options={{ title: "홈", headerShown: false }}
+      />
+      <Tab.Screen
+        name="FurnitureTab"
+        component={FurnitureNavigator}
+        options={{ title: "가구", headerShown: false }}
+      />
+      <Tab.Screen
+        name="CommunityTab"
+        component={CommunityNavigator}
+        options={{ title: "커뮤니티", headerShown: false }}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileNavigator}
+        options={{ title: "프로필", headerShown: false }}
+      />
+    </Tab.Navigator>
+  );
+}
