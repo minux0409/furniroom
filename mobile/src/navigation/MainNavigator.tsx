@@ -12,6 +12,9 @@ import { PlaceholderScreen } from "@/components/PlaceholderScreen";
 import { HouseListScreen } from "@/screens/home/HouseListScreen";
 import { HouseEditorScreen } from "@/screens/home/HouseEditorScreen";
 import { House3DViewScreen } from "@/screens/home/House3DViewScreen";
+import { FurnitureListScreen } from "@/screens/furniture/FurnitureListScreen";
+import { FurnitureDetailScreen } from "@/screens/furniture/FurnitureDetailScreen";
+import { FurnitureCreateScreen } from "@/screens/furniture/FurnitureCreateScreen";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -44,15 +47,21 @@ function HomeNavigator() {
 function FurnitureNavigator() {
   return (
     <FurnitureStack.Navigator>
-      <FurnitureStack.Screen name="FurnitureList">
-        {() => <PlaceholderScreen name="내 가구 목록" />}
-      </FurnitureStack.Screen>
-      <FurnitureStack.Screen name="FurnitureDetail">
-        {() => <PlaceholderScreen name="가구 상세" />}
-      </FurnitureStack.Screen>
-      <FurnitureStack.Screen name="FurnitureCreate">
-        {() => <PlaceholderScreen name="가구 등록" />}
-      </FurnitureStack.Screen>
+      <FurnitureStack.Screen
+        name="FurnitureList"
+        component={FurnitureListScreen}
+        options={{ title: "내 가구" }}
+      />
+      <FurnitureStack.Screen
+        name="FurnitureDetail"
+        component={FurnitureDetailScreen}
+        options={{ title: "가구 상세" }}
+      />
+      <FurnitureStack.Screen
+        name="FurnitureCreate"
+        component={FurnitureCreateScreen}
+        options={{ title: "가구 등록" }}
+      />
     </FurnitureStack.Navigator>
   );
 }

@@ -19,7 +19,13 @@ export const placementsApi = {
 
   updateBulk: (
     houseId: string,
-    placements: { id: string; posX: number; posY: number; posZ: number; rotY: number }[],
+    placements: {
+      id: string;
+      posX: number;
+      posY: number;
+      posZ: number;
+      rotY: number;
+    }[],
   ): Promise<{ data: Placement[] }> =>
     api.patch(`/houses/${houseId}/placements`, { placements }),
 

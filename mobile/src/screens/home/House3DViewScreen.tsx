@@ -10,12 +10,7 @@
  * - 저장: updateBulk로 전체 placement 일괄 저장
  */
 
-import React, {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -39,17 +34,21 @@ import type { Placement, Furniture } from "@/types";
 
 // ─── 상수 ────────────────────────────────────────────────────────────────────
 
-const WALL_HEIGHT = 2.4;    // 미터 단위
-const FLOOR_SCALE = 0.01;   // cm → m (100cm = 1m)
-const GRID_CM = 50;         // 설계도 gridSize 기본값
+const WALL_HEIGHT = 2.4; // 미터 단위
+const FLOOR_SCALE = 0.01; // cm → m (100cm = 1m)
+const GRID_CM = 50; // 설계도 gridSize 기본값
 
 // ─── 헬퍼: 폴리곤 → Shape ────────────────────────────────────────────────────
 
-function pointsToShape(points: BlueprintPoint[], canvasW: number, canvasH: number): THREE.Shape {
+function pointsToShape(
+  points: BlueprintPoint[],
+  canvasW: number,
+  canvasH: number,
+): THREE.Shape {
   const shape = new THREE.Shape();
   points.forEach((p, i) => {
-    const x = (p.x * canvasW) * FLOOR_SCALE;
-    const y = (p.y * canvasH) * FLOOR_SCALE;
+    const x = p.x * canvasW * FLOOR_SCALE;
+    const y = p.y * canvasH * FLOOR_SCALE;
     if (i === 0) shape.moveTo(x, y);
     else shape.lineTo(x, y);
   });
@@ -79,7 +78,10 @@ function CameraController() {
 
     const onTouchStart = (e: TouchEvent) => {
       if (e.touches.length === 1) {
-        lastTouch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        lastTouch.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
       }
     };
     const onTouchMove = (e: TouchEvent) => {
@@ -108,7 +110,10 @@ function CameraController() {
           radius * Math.cos(lon) * Math.cos(lat),
         );
         camera.lookAt(0, 0, 0);
-        lastTouch.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        lastTouch.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
       }
     };
     const onTouchEnd = () => {
@@ -148,8 +153,17 @@ function RoomMesh({ points, color, canvasW, canvasH }: RoomMeshProps) {
   }, [points, canvasW, canvasH]);
 
   return (
-    <mesh geometry={geometry} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0]}>
-      <meshStandardMaterial color={color} transparent opacity={0.35} side={THREE.DoubleSide} />
+    <mesh
+      geometry={geometry}
+      rotation={[Math.PI / 2, 0, 0]}
+      position={[0, 0, 0]}
+    >
+      <meshStandardMaterial
+        color={color}
+        transparent
+        opacity={0.35}
+        side={THREE.DoubleSide}
+      />
     </mesh>
   );
 }
@@ -164,11 +178,11 @@ interface FurnitureMeshProps {
 
 function FurnitureMesh({ placement, selected, onPress }: FurnitureMeshProps) {
   const ref = useRef<THREE.Mesh>(null);
-  const fw = ((placement.furniture?.widthCm ?? 80) * FLOOR_SCALE);
-  const fd = ((placement.furniture?.depthCm ?? 80) * FLOOR_SCALE);
-  const fh = ((placement.furniture?.heightCm ?? 80) * FLOOR_SCALE);
+  const fw = (placement.furniture?.widthCm ?? 80) * FLOOR_SCALE;
+  const fd = (placement.furniture?.depthCm ?? 80) * FLOOR_SCALE;
+  const fh = (placement.furniture?.heightCm ?? 80) * FLOOR_SCALE;
   const shapeType = placement.furniture?.shapeType ?? "box";
-  const color = selected ? "#FF6B6B" : FURNITURE_COLORS[shapeType] ?? "#CCC";
+  const color = selected ? "#FF6B6B" : (FURNITURE_COLORS[shapeType] ?? "#CCC");
 
   const geometry = useMemo(() => {
     if (shapeType === "cylinder") {
@@ -187,7 +201,10 @@ function FurnitureMesh({ placement, selected, onPress }: FurnitureMeshProps) {
       ]}
       rotation={[0, placement.rotY, 0]}
       geometry={geometry}
-      onPointerDown={(e) => { e.stopPropagation(); onPress(); }}
+      onPointerDown={(e) => {
+        e.stopPropagation();
+        onPress();
+      }}
     >
       <meshStandardMaterial color={color} />
     </mesh>
@@ -309,7 +326,8 @@ export function House3DViewScreen({ route }: Props) {
   const moveMutation = useMutation({
     mutationFn: (body: { posX: number; posZ: number }) =>
       placementsApi.update(houseId, selectedId!, body),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["placements", houseId] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["placements", houseId] }),
   });
 
   const handleMove = useCallback(
@@ -327,7 +345,8 @@ export function House3DViewScreen({ route }: Props) {
   const rotateMutation = useMutation({
     mutationFn: (rotY: number) =>
       placementsApi.update(houseId, selectedId!, { rotY }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["placements", houseId] }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["placements", houseId] }),
   });
 
   const handleRotate = useCallback(() => {
@@ -348,7 +367,11 @@ export function House3DViewScreen({ route }: Props) {
   const handleDelete = useCallback(() => {
     Alert.alert("가구 삭제", "선택한 가구를 삭제할까요?", [
       { text: "취소", style: "cancel" },
-      { text: "삭제", style: "destructive", onPress: () => deleteMutation.mutate() },
+      {
+        text: "삭제",
+        style: "destructive",
+        onPress: () => deleteMutation.mutate(),
+      },
     ]);
   }, [deleteMutation]);
 
@@ -375,16 +398,28 @@ export function House3DViewScreen({ route }: Props) {
             {selected.furniture?.name ?? "가구"}
           </Text>
           <View style={styles.moveGrid}>
-            <TouchableOpacity style={styles.moveBtn} onPress={() => handleMove(0, -10)}>
+            <TouchableOpacity
+              style={styles.moveBtn}
+              onPress={() => handleMove(0, -10)}
+            >
               <Text style={styles.moveBtnText}>▲</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.moveBtn} onPress={() => handleMove(-10, 0)}>
+            <TouchableOpacity
+              style={styles.moveBtn}
+              onPress={() => handleMove(-10, 0)}
+            >
               <Text style={styles.moveBtnText}>◀</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.moveBtn} onPress={() => handleMove(10, 0)}>
+            <TouchableOpacity
+              style={styles.moveBtn}
+              onPress={() => handleMove(10, 0)}
+            >
               <Text style={styles.moveBtnText}>▶</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.moveBtn} onPress={() => handleMove(0, 10)}>
+            <TouchableOpacity
+              style={styles.moveBtn}
+              onPress={() => handleMove(0, 10)}
+            >
               <Text style={styles.moveBtnText}>▼</Text>
             </TouchableOpacity>
           </View>
@@ -394,7 +429,10 @@ export function House3DViewScreen({ route }: Props) {
           <TouchableOpacity style={styles.delBtn} onPress={handleDelete}>
             <Text style={styles.delBtnText}>삭제</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.deselectBtn} onPress={() => setSelectedId(null)}>
+          <TouchableOpacity
+            style={styles.deselectBtn}
+            onPress={() => setSelectedId(null)}
+          >
             <Text style={styles.deselectBtnText}>✕</Text>
           </TouchableOpacity>
         </View>
@@ -448,7 +486,10 @@ export function House3DViewScreen({ route }: Props) {
                     <View
                       style={[
                         styles.furnitureIcon,
-                        { backgroundColor: FURNITURE_COLORS[item.shapeType] ?? "#DDD" },
+                        {
+                          backgroundColor:
+                            FURNITURE_COLORS[item.shapeType] ?? "#DDD",
+                        },
                       ]}
                     />
                     <View style={styles.furnitureInfo}>
@@ -457,9 +498,10 @@ export function House3DViewScreen({ route }: Props) {
                         {item.widthCm}×{item.depthCm}×{item.heightCm} cm
                       </Text>
                     </View>
-                    {addMutation.isPending && addMutation.variables === item.id && (
-                      <ActivityIndicator size="small" />
-                    )}
+                    {addMutation.isPending &&
+                      addMutation.variables === item.id && (
+                        <ActivityIndicator size="small" />
+                      )}
                   </TouchableOpacity>
                 )}
               />
