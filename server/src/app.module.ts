@@ -9,6 +9,7 @@ import { PlacementsModule } from './modules/placements/placements.module';
 import { CommunityModule } from './modules/community/community.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { PurchasesModule } from './modules/purchases/purchases.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -22,9 +23,7 @@ import { PurchasesModule } from './modules/purchases/purchases.module';
     CommunityModule,
     ReportsModule,
     PurchasesModule,
-    // 각 모듈은 개발하면서 여기에 연결합니다
-    // UploadModule,
-    // UploadModule,
+    UploadModule,
   ],
 })
 export class AppModule {}
