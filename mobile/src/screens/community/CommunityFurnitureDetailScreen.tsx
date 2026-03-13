@@ -20,6 +20,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { communityApi } from "@/api/community";
+import { toast } from "@/lib/toast";
 import type { Furniture } from "@/types";
 import type { CommunityStackParamList } from "@/navigation/types";
 
@@ -72,7 +73,7 @@ export function CommunityFurnitureDetailScreen({ route }: Props) {
     mutationFn: () => communityApi.importFurniture(furnitureId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["furniture"] });
-      Alert.alert("완료", "내 가구 목록에 추가되었습니다.");
+      toast.success("완료", "내 가구 목록에 추가되었습니다.");
     },
     onError: (e: { response?: { data?: { message?: string } } }) => {
       Alert.alert(
@@ -91,7 +92,7 @@ export function CommunityFurnitureDetailScreen({ route }: Props) {
       }),
     onSuccess: () => {
       setReportModal(false);
-      Alert.alert("신고 완료", "신고가 접수되었습니다.");
+      toast.success("신고 완료", "신고가 접수되었습니다.");
     },
     onError: (e: { response?: { data?: { message?: string } } }) => {
       Alert.alert(

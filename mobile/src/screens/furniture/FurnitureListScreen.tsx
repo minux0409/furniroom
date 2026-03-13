@@ -40,7 +40,9 @@ export function FurnitureListScreen() {
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["furniture", search],
     queryFn: () =>
-      furnitureApi.getAll({ search: search.trim() || undefined, limit: 50 }).then((r) => r.data),
+      furnitureApi
+        .getAll({ search: search.trim() || undefined, limit: 50 })
+        .then((r) => r.data),
   });
 
   const deleteMutation = useMutation({
@@ -98,7 +100,9 @@ export function FurnitureListScreen() {
       {items.length === 0 ? (
         <View style={styles.center}>
           <Text style={styles.emptyTitle}>등록된 가구가 없어요</Text>
-          <Text style={styles.emptyHint}>아래 ＋ 버튼으로 가구를 추가해 보세요.</Text>
+          <Text style={styles.emptyHint}>
+            아래 ＋ 버튼으로 가구를 추가해 보세요.
+          </Text>
         </View>
       ) : (
         <FlatList
@@ -108,13 +112,22 @@ export function FurnitureListScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.card}
-              onPress={() => navigation.navigate("FurnitureDetail", { furnitureId: item.id })}
+              onPress={() =>
+                navigation.navigate("FurnitureDetail", { furnitureId: item.id })
+              }
               onLongPress={() => handleLongPress(item)}
               activeOpacity={0.7}
             >
               {/* 모양 아이콘 */}
-              <View style={[styles.shapeIcon, { backgroundColor: SHAPE_COLOR[item.shapeType] }]}>
-                <Text style={styles.shapeIconText}>{item.shapeType === "cylinder" ? "○" : "□"}</Text>
+              <View
+                style={[
+                  styles.shapeIcon,
+                  { backgroundColor: SHAPE_COLOR[item.shapeType] },
+                ]}
+              >
+                <Text style={styles.shapeIconText}>
+                  {item.shapeType === "cylinder" ? "○" : "□"}
+                </Text>
               </View>
 
               {/* 정보 */}
@@ -124,8 +137,15 @@ export function FurnitureListScreen() {
                   {item.widthCm} × {item.depthCm} × {item.heightCm} cm
                 </Text>
                 <View style={styles.tagRow}>
-                  <View style={[styles.shapeBadge, { backgroundColor: SHAPE_COLOR[item.shapeType] + "88" }]}>
-                    <Text style={styles.shapeBadgeText}>{SHAPE_LABEL[item.shapeType]}</Text>
+                  <View
+                    style={[
+                      styles.shapeBadge,
+                      { backgroundColor: SHAPE_COLOR[item.shapeType] + "88" },
+                    ]}
+                  >
+                    <Text style={styles.shapeBadgeText}>
+                      {SHAPE_LABEL[item.shapeType]}
+                    </Text>
                   </View>
                   {item.tags.slice(0, 2).map((t) => (
                     <View key={t.tag} style={styles.tag}>

@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Image,
   Modal,
   ScrollView,
   StyleSheet,
@@ -23,6 +24,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { profileApi } from "@/api/profile";
 import { useAuthStore } from "@/store/authStore";
+import { useImagePicker } from "@/hooks/useImagePicker";
+import { toast } from "@/lib/toast";
 import type { ProfileStackParamList } from "@/navigation/types";
 
 type Props = NativeStackScreenProps<ProfileStackParamList, "Profile">;
@@ -33,6 +36,17 @@ export function ProfileScreen({ navigation }: Props) {
 
   const [nicknameModal, setNicknameModal] = useState(false);
   const [nicknameInput, setNicknameInput] = useState("");
+
+  const avatarMutation = useMutation({
+    mutationFn: (imageUrl: string) =>
+      profileApi.updateMe({ profileImageUrl: imageUrl }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["me"] }),
+    onError: () => Alert.alert("오류", "프로필 사진 업데이트에 실패했습니다."),
+  });
+
+  const { pick: pickAvatar, uploading: avatarUploading } = useImagePicker({
+    onSuccess: (url) => avatarMutation.mutate(url),
+  });
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["me"],
@@ -56,7 +70,7 @@ export function ProfileScreen({ navigation }: Props) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["me"] });
       setNicknameModal(false);
-      Alert.alert("완료", "닉네임이 변경되었습니다.");
+      toast.success("닉네임 변경 완료");
     },
     onError: (e: { response?: { data?: { message?: string } } }) => {
       Alert.alert("오류", e.response?.data?.message ?? "변경에 실패했습니다.");
@@ -115,11 +129,31 @@ export function ProfileScreen({ navigation }: Props) {
     <ScrollView style={styles.root} contentContainerStyle={styles.content}>
       {/* 프로필 카드 */}
       <View style={styles.profileCard}>
-        <View style={styles.avatar}>
-          <Text style={styles.avatarText}>
-            {user?.nickname?.[0]?.toUpperCase() ?? "?"}
-          </Text>
-        </View>
+        <TouchableOpacity
+          style={styles.avatarWrap}
+          onPress={pickAvatar}
+          disabled={avatarUploading}
+        >
+          {avatarUploading ? (
+            <View style={styles.avatar}>
+              <ActivityIndicator color="#FFF" />
+            </View>
+          ) : user?.profileImageUrl ? (
+            <Image
+              source={{ uri: user.profileImageUrl }}
+              style={styles.avatarImage}
+            />
+          ) : (
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {user?.nickname?.[0]?.toUpperCase() ?? "?"}
+              </Text>
+            </View>
+          )}
+          <View style={styles.avatarEditBadge}>
+            <Text style={styles.avatarEditBadgeText}>📷</Text>
+          </View>
+        </TouchableOpacity>
         <View style={styles.profileInfo}>
           <Text style={styles.nickname}>{user?.nickname}</Text>
           <Text style={styles.email}>{user?.email}</Text>
@@ -325,6 +359,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  avatarWrap: { position: "relative" },
+  avatarImage: { width: 60, height: 60, borderRadius: 30 },
+  avatarEditBadge: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "#FFF",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  avatarEditBadgeText: { fontSize: 10 },
   avatarText: { fontSize: 26, color: "#FFF", fontWeight: "700" },
   profileInfo: { flex: 1, gap: 2 },
   nickname: { fontSize: 17, fontWeight: "700", color: "#111" },

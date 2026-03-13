@@ -89,7 +89,11 @@ export function FurnitureDetailScreen({ route, navigation }: Props) {
   const handleDelete = () => {
     Alert.alert("가구 삭제", "이 가구를 삭제할까요?", [
       { text: "취소", style: "cancel" },
-      { text: "삭제", style: "destructive", onPress: () => deleteMutation.mutate() },
+      {
+        text: "삭제",
+        style: "destructive",
+        onPress: () => deleteMutation.mutate(),
+      },
     ]);
   };
 
@@ -127,8 +131,15 @@ export function FurnitureDetailScreen({ route, navigation }: Props) {
             {furniture.shapeType === "cylinder" ? "○" : "□"}
           </Text>
         </View>
-        <View style={[styles.shapeBadge, { backgroundColor: SHAPE_COLOR[furniture.shapeType] + "88" }]}>
-          <Text style={styles.shapeBadgeText}>{SHAPE_LABEL[furniture.shapeType]}</Text>
+        <View
+          style={[
+            styles.shapeBadge,
+            { backgroundColor: SHAPE_COLOR[furniture.shapeType] + "88" },
+          ]}
+        >
+          <Text style={styles.shapeBadgeText}>
+            {SHAPE_LABEL[furniture.shapeType]}
+          </Text>
         </View>
       </View>
 
@@ -183,7 +194,12 @@ export function FurnitureDetailScreen({ route, navigation }: Props) {
         {editing ? (
           <Switch value={isPublic} onValueChange={setIsPublic} />
         ) : (
-          <Text style={[styles.badge, isPublic ? styles.badgePublic : styles.badgePrivate]}>
+          <Text
+            style={[
+              styles.badge,
+              isPublic ? styles.badgePublic : styles.badgePrivate,
+            ]}
+          >
             {isPublic ? "공개" : "비공개"}
           </Text>
         )}
@@ -238,7 +254,10 @@ export function FurnitureDetailScreen({ route, navigation }: Props) {
             <Text style={styles.cancelBtnText}>취소</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.saveBtn, updateMutation.isPending && styles.saveBtnDisabled]}
+            style={[
+              styles.saveBtn,
+              updateMutation.isPending && styles.saveBtnDisabled,
+            ]}
             onPress={() => updateMutation.mutate()}
             disabled={updateMutation.isPending}
           >
@@ -249,7 +268,10 @@ export function FurnitureDetailScreen({ route, navigation }: Props) {
         </View>
       ) : (
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.editBtn} onPress={() => setEditing(true)}>
+          <TouchableOpacity
+            style={styles.editBtn}
+            onPress={() => setEditing(true)}
+          >
             <Text style={styles.editBtnText}>편집</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.delBtn} onPress={handleDelete}>

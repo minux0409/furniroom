@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
+  Image,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,6 +13,7 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { furnitureApi } from "@/api/furniture";
+import { useImagePicker } from "@/hooks/useImagePicker";
 import type { Furniture } from "@/types";
 import type { FurnitureStackParamList } from "@/navigation/types";
 
@@ -18,7 +21,12 @@ type Props = NativeStackScreenProps<FurnitureStackParamList, "FurnitureCreate">;
 
 type ShapeType = Furniture["shapeType"];
 
-const SHAPES: { type: ShapeType; label: string; icon: string; color: string }[] = [
+const SHAPES: {
+  type: ShapeType;
+  label: string;
+  icon: string;
+  color: string;
+}[] = [
   { type: "box", label: "직육면체", icon: "□", color: "#A0C4FF" },
   { type: "cylinder", label: "원기둥", icon: "○", color: "#BDB2FF" },
   { type: "l_shape", label: "L자형", icon: "⌐", color: "#CAFFBF" },
@@ -35,6 +43,11 @@ export function FurnitureCreateScreen({ navigation }: Props) {
   const [heightCm, setHeightCm] = useState("80");
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState<string[]>([]);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  const { pick: pickImage, uploading: imageUploading } = useImagePicker({
+    onSuccess: (url) => setImageUrl(url),
+  });
 
   const createMutation = useMutation({
     mutationFn: () =>
@@ -45,13 +58,17 @@ export function FurnitureCreateScreen({ navigation }: Props) {
         depthCm: Number(depthCm),
         heightCm: Number(heightCm),
         tags,
+        ...(imageUrl ? { imageUrl } : {}),
       }),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["furniture"] });
       navigation.replace("FurnitureDetail", { furnitureId: res.data.id });
     },
     onError: (e: { response?: { data?: { message?: string } } }) => {
-      Alert.alert("등록 실패", e.response?.data?.message ?? "잠시 후 다시 시도해 주세요.");
+      Alert.alert(
+        "등록 실패",
+        e.response?.data?.message ?? "잠시 후 다시 시도해 주세요.",
+      );
     },
   });
 
@@ -67,9 +84,12 @@ export function FurnitureCreateScreen({ navigation }: Props) {
       return;
     }
     if (
-      isNaN(Number(widthCm)) || Number(widthCm) <= 0 ||
-      isNaN(Number(depthCm)) || Number(depthCm) <= 0 ||
-      isNaN(Number(heightCm)) || Number(heightCm) <= 0
+      isNaN(Number(widthCm)) ||
+      Number(widthCm) <= 0 ||
+      isNaN(Number(depthCm)) ||
+      Number(depthCm) <= 0 ||
+      isNaN(Number(heightCm)) ||
+      Number(heightCm) <= 0
     ) {
       Alert.alert("알림", "크기는 0보다 큰 숫자로 입력해 주세요.");
       return;
@@ -78,7 +98,11 @@ export function FurnitureCreateScreen({ navigation }: Props) {
   };
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <ScrollView
+      style={styles.root}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
       {/* 이름 */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>이름 *</Text>
@@ -106,10 +130,23 @@ export function FurnitureCreateScreen({ navigation }: Props) {
               ]}
               onPress={() => setShapeType(s.type)}
             >
-              <View style={[styles.shapeIconWrap, { backgroundColor: s.color + (shapeType === s.type ? "FF" : "66") }]}>
+              <View
+                style={[
+                  styles.shapeIconWrap,
+                  {
+                    backgroundColor:
+                      s.color + (shapeType === s.type ? "FF" : "66"),
+                  },
+                ]}
+              >
                 <Text style={styles.shapeIcon}>{s.icon}</Text>
               </View>
-              <Text style={[styles.shapeLabel, shapeType === s.type && { color: "#111", fontWeight: "700" }]}>
+              <Text
+                style={[
+                  styles.shapeLabel,
+                  shapeType === s.type && { color: "#111", fontWeight: "700" },
+                ]}
+              >
                 {s.label}
               </Text>
             </TouchableOpacity>
@@ -147,7 +184,8 @@ export function FurnitureCreateScreen({ navigation }: Props) {
               {
                 width: Math.min(Math.max(Number(widthCm) / 5, 20), 120),
                 height: Math.min(Math.max(Number(heightCm) / 5, 20), 80),
-                backgroundColor: SHAPES.find((s) => s.type === shapeType)?.color ?? "#CCC",
+                backgroundColor:
+                  SHAPES.find((s) => s.type === shapeType)?.color ?? "#CCC",
                 borderRadius: shapeType === "cylinder" ? 999 : 4,
               },
             ]}
@@ -190,9 +228,38 @@ export function FurnitureCreateScreen({ navigation }: Props) {
         )}
       </View>
 
+      {/* 이미지 (선택) */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>이미지 (선택)</Text>
+        <TouchableOpacity
+          style={styles.imagePicker}
+          onPress={pickImage}
+          disabled={imageUploading}
+        >
+          {imageUrl ? (
+            <Image source={{ uri: imageUrl }} style={styles.imagePreview} />
+          ) : imageUploading ? (
+            <ActivityIndicator color="#4A90E2" />
+          ) : (
+            <>
+              <Text style={styles.imagePickerIcon}>📷</Text>
+              <Text style={styles.imagePickerText}>사진 선택</Text>
+            </>
+          )}
+        </TouchableOpacity>
+        {imageUrl && (
+          <TouchableOpacity onPress={() => setImageUrl(null)}>
+            <Text style={styles.imageRemoveText}>✕ 이미지 제거</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
       {/* 등록 버튼 */}
       <TouchableOpacity
-        style={[styles.submitBtn, createMutation.isPending && styles.submitBtnDisabled]}
+        style={[
+          styles.submitBtn,
+          createMutation.isPending && styles.submitBtnDisabled,
+        ]}
         onPress={handleSubmit}
         disabled={createMutation.isPending}
       >
@@ -309,4 +376,19 @@ const styles = StyleSheet.create({
   },
   submitBtnDisabled: { backgroundColor: "#AAC9EF" },
   submitBtnText: { color: "#FFF", fontWeight: "700", fontSize: 16 },
+  imagePicker: {
+    borderWidth: 1.5,
+    borderColor: "#DDD",
+    borderStyle: "dashed",
+    borderRadius: 12,
+    height: 120,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: "#FAFAFA",
+  },
+  imagePreview: { width: "100%", height: 120, borderRadius: 10 },
+  imagePickerIcon: { fontSize: 30 },
+  imagePickerText: { fontSize: 13, color: "#AAA" },
+  imageRemoveText: { fontSize: 13, color: "#E74C3C", textAlign: "center" },
 });

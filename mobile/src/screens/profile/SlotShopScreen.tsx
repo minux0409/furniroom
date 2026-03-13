@@ -19,6 +19,7 @@ import {
 } from "react-native";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { profileApi } from "@/api/profile";
+import { toast } from "@/lib/toast";
 
 const SLOT_UNIT = 5;
 const SLOT_PRICE_USD = 1.99;
@@ -94,7 +95,7 @@ export function SlotShopScreen() {
     onSuccess: ({ data }) => {
       queryClient.invalidateQueries({ queryKey: ["slots"] });
       setBuyingIdx(null);
-      Alert.alert("구매 완료 🎉", data.message);
+      toast.success("구매 완료 🎉", data.message);
     },
     onError: (e: { response?: { data?: { message?: string } } }) => {
       setBuyingIdx(null);

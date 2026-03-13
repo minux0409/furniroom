@@ -20,6 +20,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { communityApi } from "@/api/community";
+import { toast } from "@/lib/toast";
 import type { CommunityStackParamList } from "@/navigation/types";
 import type { BlueprintData } from "@/screens/home/HouseEditorScreen";
 
@@ -57,7 +58,7 @@ export function CommunityHouseDetailScreen({ route }: Props) {
     mutationFn: () => communityApi.importHouse(houseId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["houses"] });
-      Alert.alert("완료", "내 집 목록에 추가되었습니다.");
+      toast.success("완료", "내 집 목록에 추가되었습니다.");
     },
     onError: (e: { response?: { data?: { message?: string } } }) => {
       Alert.alert(
@@ -72,7 +73,7 @@ export function CommunityHouseDetailScreen({ route }: Props) {
       communityApi.report({ targetType: "house", targetId: houseId, reason }),
     onSuccess: () => {
       setReportModal(false);
-      Alert.alert("신고 완료", "신고가 접수되었습니다.");
+      toast.success("신고 완료", "신고가 접수되었습니다.");
     },
     onError: (e: { response?: { data?: { message?: string } } }) => {
       Alert.alert(

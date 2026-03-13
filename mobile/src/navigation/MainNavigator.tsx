@@ -1,6 +1,7 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Ionicons } from "@expo/vector-icons";
 import type {
   MainTabParamList,
   HomeStackParamList,
@@ -115,28 +116,80 @@ function ProfileNavigator() {
   );
 }
 
+type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
+
+function tabIcon(
+  focused: boolean,
+  activeIcon: IoniconsName,
+  inactiveIcon: IoniconsName,
+  color: string,
+  size: number,
+) {
+  return (
+    <Ionicons
+      name={focused ? activeIcon : inactiveIcon}
+      size={size}
+      color={color}
+    />
+  );
+}
+
 export function MainNavigator() {
   return (
-    <Tab.Navigator>
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: "#4A90E2",
+        tabBarInactiveTintColor: "#B0B0B0",
+        tabBarStyle: {
+          backgroundColor: "#FFFFFF",
+          borderTopWidth: 0.5,
+          borderTopColor: "#E5E5E5",
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 6,
+        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
+      }}
+    >
       <Tab.Screen
         name="HomeTab"
         component={HomeNavigator}
-        options={{ title: "홈", headerShown: false }}
+        options={{
+          title: "홈",
+          headerShown: false,
+          tabBarIcon: ({ focused, color, size }) =>
+            tabIcon(focused, "home", "home-outline", color, size),
+        }}
       />
       <Tab.Screen
         name="FurnitureTab"
         component={FurnitureNavigator}
-        options={{ title: "가구", headerShown: false }}
+        options={{
+          title: "가구",
+          headerShown: false,
+          tabBarIcon: ({ focused, color, size }) =>
+            tabIcon(focused, "cube", "cube-outline", color, size),
+        }}
       />
       <Tab.Screen
         name="CommunityTab"
         component={CommunityNavigator}
-        options={{ title: "커뮤니티", headerShown: false }}
+        options={{
+          title: "커뮤니티",
+          headerShown: false,
+          tabBarIcon: ({ focused, color, size }) =>
+            tabIcon(focused, "people", "people-outline", color, size),
+        }}
       />
       <Tab.Screen
         name="ProfileTab"
         component={ProfileNavigator}
-        options={{ title: "프로필", headerShown: false }}
+        options={{
+          title: "프로필",
+          headerShown: false,
+          tabBarIcon: ({ focused, color, size }) =>
+            tabIcon(focused, "person", "person-outline", color, size),
+        }}
       />
     </Tab.Navigator>
   );

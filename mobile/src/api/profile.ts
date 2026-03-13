@@ -6,8 +6,10 @@ export const profileApi = {
   getMe: (): Promise<{ data: User }> => api.get("/users/me"),
 
   /** PATCH /users/me */
-  updateMe: (dto: { nickname: string }): Promise<{ data: User }> =>
-    api.patch("/users/me", dto),
+  updateMe: (dto: {
+    nickname?: string;
+    profileImageUrl?: string;
+  }): Promise<{ data: User }> => api.patch("/users/me", dto),
 
   /** GET /users/me/slots */
   getSlots: (): Promise<{ data: SlotStatus }> => api.get("/users/me/slots"),
