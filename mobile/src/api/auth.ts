@@ -11,6 +11,12 @@ export const authApi = {
   googleLogin: (idToken: string): Promise<{ data: AuthResponse }> =>
     api.post("/auth/google", { idToken }),
 
+  appleLogin: (
+    identityToken: string,
+    fullName?: string | null,
+  ): Promise<{ data: AuthResponse }> =>
+    api.post("/auth/apple", { identityToken, fullName }),
+
   refresh: (refreshToken: string): Promise<{ data: AuthResponse }> =>
     api.post(
       "/auth/refresh",

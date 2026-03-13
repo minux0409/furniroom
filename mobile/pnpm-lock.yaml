@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@invertase/react-native-apple-authentication':
+        specifier: ^2.5.1
+        version: 2.5.1
       '@react-native-google-signin/google-signin':
         specifier: ^16.1.2
         version: 16.1.2(expo@55.0.6)(react-native@0.83.2(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.0))(react@19.2.0)
@@ -752,6 +755,10 @@ packages:
   '@expo/xcpretty@4.4.1':
     resolution: {integrity: sha512-KZNxZvnGCtiM2aYYZ6Wz0Ix5r47dAvpNLApFtZWnSoERzAdOMzVBOPysBoM0JlF6FKWZ8GPqgn6qt3dV/8Zlpg==}
     hasBin: true
+
+  '@invertase/react-native-apple-authentication@2.5.1':
+    resolution: {integrity: sha512-KPKKc0wtRYpH4J0RkDfHzoKSZ+dYPEHmCXhpPdgHsT2MbK5AIkW1cYurjhAgev/kL7nOHFmWITjY1At5WhFEMQ==}
+    engines: {node: '>=14'}
 
   '@isaacs/ttlcache@1.4.1':
     resolution: {integrity: sha512-RQgQ4uQ+pLbqXfOmieB91ejmLwvSgv9nLx6sT6sD83s7umBypgg+OIBOBbEUiJXrfpnp9j0mRhYYdzp9uqq3lA==}
@@ -3767,6 +3774,8 @@ snapshots:
       '@babel/code-frame': 7.29.0
       chalk: 4.1.2
       js-yaml: 4.1.1
+
+  '@invertase/react-native-apple-authentication@2.5.1': {}
 
   '@isaacs/ttlcache@1.4.1': {}
 
