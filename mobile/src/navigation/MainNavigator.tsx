@@ -15,6 +15,9 @@ import { House3DViewScreen } from "@/screens/home/House3DViewScreen";
 import { FurnitureListScreen } from "@/screens/furniture/FurnitureListScreen";
 import { FurnitureDetailScreen } from "@/screens/furniture/FurnitureDetailScreen";
 import { FurnitureCreateScreen } from "@/screens/furniture/FurnitureCreateScreen";
+import { CommunityFeedScreen } from "@/screens/community/CommunityFeedScreen";
+import { CommunityHouseDetailScreen } from "@/screens/community/CommunityHouseDetailScreen";
+import { CommunityFurnitureDetailScreen } from "@/screens/community/CommunityFurnitureDetailScreen";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -69,15 +72,21 @@ function FurnitureNavigator() {
 function CommunityNavigator() {
   return (
     <CommunityStack.Navigator>
-      <CommunityStack.Screen name="CommunityFeed">
-        {() => <PlaceholderScreen name="커뮤니티 피드" />}
-      </CommunityStack.Screen>
-      <CommunityStack.Screen name="CommunityHouseDetail">
-        {() => <PlaceholderScreen name="커뮤니티 집 상세" />}
-      </CommunityStack.Screen>
-      <CommunityStack.Screen name="CommunityFurnitureDetail">
-        {() => <PlaceholderScreen name="커뮤니티 가구 상세" />}
-      </CommunityStack.Screen>
+      <CommunityStack.Screen
+        name="CommunityFeed"
+        component={CommunityFeedScreen}
+        options={{ title: "커뮤니티" }}
+      />
+      <CommunityStack.Screen
+        name="CommunityHouseDetail"
+        component={CommunityHouseDetailScreen}
+        options={{ title: "집 상세" }}
+      />
+      <CommunityStack.Screen
+        name="CommunityFurnitureDetail"
+        component={CommunityFurnitureDetailScreen}
+        options={{ title: "가구 상세" }}
+      />
     </CommunityStack.Navigator>
   );
 }
