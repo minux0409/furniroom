@@ -8,6 +8,7 @@ import { FurnitureModule } from './modules/furniture/furniture.module';
 import { PlacementsModule } from './modules/placements/placements.module';
 import { CommunityModule } from './modules/community/community.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { PurchasesModule } from './modules/purchases/purchases.module';
 
 @Module({
   imports: [
@@ -20,8 +21,9 @@ import { ReportsModule } from './modules/reports/reports.module';
     PlacementsModule,
     CommunityModule,
     ReportsModule,
+    PurchasesModule,
     // 각 모듈은 개발하면서 여기에 연결합니다
-    // PurchasesModule,
+    // UploadModule,
     // UploadModule,
   ],
 })
