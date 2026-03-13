@@ -11,6 +11,7 @@ import type {
 import { PlaceholderScreen } from "@/components/PlaceholderScreen";
 import { HouseListScreen } from "@/screens/home/HouseListScreen";
 import { HouseEditorScreen } from "@/screens/home/HouseEditorScreen";
+import { House3DViewScreen } from "@/screens/home/House3DViewScreen";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -31,9 +32,11 @@ function HomeNavigator() {
         component={HouseEditorScreen}
         options={{ headerShown: false }}
       />
-      <HomeStack.Screen name="House3DView">
-        {() => <PlaceholderScreen name="3D 뷰어" />}
-      </HomeStack.Screen>
+      <HomeStack.Screen
+        name="House3DView"
+        component={House3DViewScreen}
+        options={{ headerShown: false }}
+      />
     </HomeStack.Navigator>
   );
 }
