@@ -10,6 +10,7 @@ import type {
 } from "./types";
 import { PlaceholderScreen } from "@/components/PlaceholderScreen";
 import { HouseListScreen } from "@/screens/home/HouseListScreen";
+import { HouseEditorScreen } from "@/screens/home/HouseEditorScreen";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -25,9 +26,11 @@ function HomeNavigator() {
         component={HouseListScreen}
         options={{ title: "내 집" }}
       />
-      <HomeStack.Screen name="HouseEditor">
-        {() => <PlaceholderScreen name="설계도 편집기 (2D)" />}
-      </HomeStack.Screen>
+      <HomeStack.Screen
+        name="HouseEditor"
+        component={HouseEditorScreen}
+        options={{ headerShown: false }}
+      />
       <HomeStack.Screen name="House3DView">
         {() => <PlaceholderScreen name="3D 뷰어" />}
       </HomeStack.Screen>
