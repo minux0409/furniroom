@@ -8,7 +8,6 @@ import type {
   CommunityStackParamList,
   ProfileStackParamList,
 } from "./types";
-import { PlaceholderScreen } from "@/components/PlaceholderScreen";
 import { HouseListScreen } from "@/screens/home/HouseListScreen";
 import { HouseEditorScreen } from "@/screens/home/HouseEditorScreen";
 import { House3DViewScreen } from "@/screens/home/House3DViewScreen";
@@ -18,6 +17,9 @@ import { FurnitureCreateScreen } from "@/screens/furniture/FurnitureCreateScreen
 import { CommunityFeedScreen } from "@/screens/community/CommunityFeedScreen";
 import { CommunityHouseDetailScreen } from "@/screens/community/CommunityHouseDetailScreen";
 import { CommunityFurnitureDetailScreen } from "@/screens/community/CommunityFurnitureDetailScreen";
+import { ProfileScreen } from "@/screens/profile/ProfileScreen";
+import { SlotShopScreen } from "@/screens/profile/SlotShopScreen";
+import { PurchaseHistoryScreen } from "@/screens/profile/PurchaseHistoryScreen";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
@@ -94,15 +96,21 @@ function CommunityNavigator() {
 function ProfileNavigator() {
   return (
     <ProfileStack.Navigator>
-      <ProfileStack.Screen name="Profile">
-        {() => <PlaceholderScreen name="내 프로필" />}
-      </ProfileStack.Screen>
-      <ProfileStack.Screen name="SlotShop">
-        {() => <PlaceholderScreen name="슬롯 상점" />}
-      </ProfileStack.Screen>
-      <ProfileStack.Screen name="PurchaseHistory">
-        {() => <PlaceholderScreen name="구매 내역" />}
-      </ProfileStack.Screen>
+      <ProfileStack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ title: "내 프로필" }}
+      />
+      <ProfileStack.Screen
+        name="SlotShop"
+        component={SlotShopScreen}
+        options={{ title: "슬롯 상점" }}
+      />
+      <ProfileStack.Screen
+        name="PurchaseHistory"
+        component={PurchaseHistoryScreen}
+        options={{ title: "구매 내역" }}
+      />
     </ProfileStack.Navigator>
   );
 }
