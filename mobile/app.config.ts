@@ -4,6 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "Furniroom",
   slug: "furniroom",
+  owner: "minux0409",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/icon.png",
@@ -42,10 +43,8 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ],
 
   extra: {
-    // EXPO_PUBLIC_ 변수는 클라이언트에 자동 노출됨
-    // 여기서는 eas projectId를 추가 (EAS Build 시 필요)
     eas: {
-      projectId: process.env.EAS_PROJECT_ID ?? "",
+      projectId: "0ed7a57b-f813-4343-bc98-fa9ceea796ab",
     },
   },
 });
