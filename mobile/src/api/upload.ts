@@ -1,4 +1,4 @@
-import { api } from "@/lib/axios";
+import { api } from "@/lib/api";
 
 /** POST /upload?type=image — multipart/form-data */
 export async function uploadImage(

@@ -1,4 +1,4 @@
-import { api } from "@/lib/axios";
+import { api } from "@/lib/api";
 import type { User, SlotStatus, Purchase } from "@/types";
 
 export const profileApi = {
