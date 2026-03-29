@@ -65,70 +65,131 @@ const FURNITURE_COLORS: Record<string, string> = {
   custom: "#FFD6A5",
 };
 
-// ─── OrbitControls (간단 구현) ────────────────────────────────────────────────
+// ─── 카메라 터치 상태 ─────────────────────────────────────────────────────────
+// React Native 터치 핸들러(Canvas 밖)와 useFrame(Canvas 안)을 연결하는 브릿지
+
+const _ct = {
+  prevX: 0,
+  prevY: 0,
+  prevMidX: 0,
+  prevMidY: 0,
+  prevDist: 0,
+  // 한 프레임에서 소비해야 할 누적 델타
+  dRotX: 0,
+  dRotY: 0,
+  dZoom: 0,
+  dPanX: 0,
+  dPanY: 0,
+};
+
+function onCameraStart(e: any): void {
+  const t: any[] = e?.nativeEvent?.touches ?? [];
+  if (t.length >= 1) {
+    _ct.prevX = t[0].pageX;
+    _ct.prevY = t[0].pageY;
+  }
+  if (t.length >= 2) {
+    const dx = t[0].pageX - t[1].pageX;
+    const dy = t[0].pageY - t[1].pageY;
+    _ct.prevDist = Math.sqrt(dx * dx + dy * dy);
+    _ct.prevMidX = (t[0].pageX + t[1].pageX) / 2;
+    _ct.prevMidY = (t[0].pageY + t[1].pageY) / 2;
+  }
+}
+
+function onCameraMove(e: any): void {
+  const t: any[] = e?.nativeEvent?.touches ?? [];
+  if (t.length === 1) {
+    // 1손가락 드래그 → 궤도 회전
+    _ct.dRotX += (t[0].pageX - _ct.prevX) / 250;
+    _ct.dRotY += (t[0].pageY - _ct.prevY) / 250;
+    _ct.prevX = t[0].pageX;
+    _ct.prevY = t[0].pageY;
+  } else if (t.length === 2) {
+    // 2손가락 → 핀치 줌 + 드래그 팬
+    const dx = t[0].pageX - t[1].pageX;
+    const dy = t[0].pageY - t[1].pageY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const midX = (t[0].pageX + t[1].pageX) / 2;
+    const midY = (t[0].pageY + t[1].pageY) / 2;
+    if (_ct.prevDist > 0) _ct.dZoom += (_ct.prevDist - dist) * 0.006;
+    _ct.dPanX += midX - _ct.prevMidX;
+    _ct.dPanY += midY - _ct.prevMidY;
+    _ct.prevDist = dist;
+    _ct.prevMidX = midX;
+    _ct.prevMidY = midY;
+  }
+}
+
+function onCameraEnd(e: any): void {
+  const t: any[] = e?.nativeEvent?.touches ?? [];
+  if (t.length === 0) {
+    _ct.prevDist = 0;
+  } else if (t.length === 1) {
+    _ct.prevX = t[0].pageX;
+    _ct.prevY = t[0].pageY;
+    _ct.prevDist = 0;
+  }
+}
+
+// ─── OrbitControls ───────────────────────────────────────────────────────────
 
 function CameraController() {
-  const { camera, gl } = useThree();
-  const lastTouch = useRef<{ x: number; y: number } | null>(null);
-  const lastDist = useRef<number | null>(null);
+  const { camera } = useThree();
+  const target = useRef(new THREE.Vector3(0, 0, 0));
 
   useFrame(() => {
-    const canvas = gl.domElement;
-    if (!canvas) return;
+    let dirty = false;
 
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        lastTouch.current = {
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY,
-        };
-      }
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches.length === 2) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        const d = Math.sqrt(dx * dx + dy * dy);
-        if (lastDist.current !== null) {
-          const delta = (lastDist.current - d) * 0.05;
-          camera.position.multiplyScalar(1 + delta * 0.05);
-        }
-        lastDist.current = d;
-      } else if (e.touches.length === 1 && lastTouch.current) {
-        const dx = e.touches[0].clientX - lastTouch.current.x;
-        const dy = e.touches[0].clientY - lastTouch.current.y;
-        const theta = (dx / 300) * Math.PI;
-        const phi = (dy / 300) * Math.PI;
-        const pos = camera.position;
-        const radius = pos.length();
-        let lon = Math.atan2(pos.x, pos.z) - theta;
-        let lat = Math.asin(pos.y / radius) + phi;
-        lat = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, lat));
-        camera.position.set(
-          radius * Math.sin(lon) * Math.cos(lat),
-          radius * Math.sin(lat),
-          radius * Math.cos(lon) * Math.cos(lat),
-        );
-        camera.lookAt(0, 0, 0);
-        lastTouch.current = {
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY,
-        };
-      }
-    };
-    const onTouchEnd = () => {
-      lastTouch.current = null;
-      lastDist.current = null;
-    };
+    // 1손가락: 궤도 회전
+    if (_ct.dRotX !== 0 || _ct.dRotY !== 0) {
+      const pos = camera.position.clone().sub(target.current);
+      const r = Math.max(0.5, pos.length());
+      let lon = Math.atan2(pos.x, pos.z) - _ct.dRotX * Math.PI;
+      let lat =
+        Math.asin(Math.max(-1, Math.min(1, pos.y / r))) + _ct.dRotY * Math.PI;
+      lat = Math.max(-Math.PI / 2 + 0.05, Math.min(Math.PI / 2 - 0.05, lat));
+      camera.position.set(
+        target.current.x + r * Math.sin(lon) * Math.cos(lat),
+        target.current.y + r * Math.sin(lat),
+        target.current.z + r * Math.cos(lon) * Math.cos(lat),
+      );
+      _ct.dRotX = 0;
+      _ct.dRotY = 0;
+      dirty = true;
+    }
 
-    canvas.addEventListener("touchstart", onTouchStart);
-    canvas.addEventListener("touchmove", onTouchMove);
-    canvas.addEventListener("touchend", onTouchEnd);
-    return () => {
-      canvas.removeEventListener("touchstart", onTouchStart);
-      canvas.removeEventListener("touchmove", onTouchMove);
-      canvas.removeEventListener("touchend", onTouchEnd);
-    };
+    // 핀치: 줌
+    if (_ct.dZoom !== 0) {
+      const dir = camera.position.clone().sub(target.current);
+      const newLen = Math.max(0.5, dir.length() - _ct.dZoom);
+      camera.position
+        .copy(target.current)
+        .addScaledVector(dir.normalize(), newLen);
+      _ct.dZoom = 0;
+      dirty = true;
+    }
+
+    // 2손가락 드래그: 팬
+    if (_ct.dPanX !== 0 || _ct.dPanY !== 0) {
+      const PAN = 0.015;
+      const dir = camera.position.clone().sub(target.current).normalize();
+      const right = new THREE.Vector3()
+        .crossVectors(dir, new THREE.Vector3(0, 1, 0))
+        .normalize();
+      const up = new THREE.Vector3().crossVectors(right, dir).normalize();
+      const panVec = right
+        .clone()
+        .multiplyScalar(-_ct.dPanX * PAN)
+        .addScaledVector(up, _ct.dPanY * PAN);
+      target.current.add(panVec);
+      camera.position.add(panVec);
+      _ct.dPanX = 0;
+      _ct.dPanY = 0;
+      dirty = true;
+    }
+
+    if (dirty) camera.lookAt(target.current);
   });
 
   return null;
@@ -144,27 +205,51 @@ interface RoomMeshProps {
 }
 
 function RoomMesh({ points, color, canvasW, canvasH }: RoomMeshProps) {
-  const geometry = useMemo(() => {
+  const { floorGeo, wallGeo } = useMemo(() => {
+    if (!points || points.length < 3) return { floorGeo: null, wallGeo: null };
     const shape = pointsToShape(points, canvasW, canvasH);
-    return new THREE.ExtrudeGeometry(shape, {
+    // 바닥 — 두께 없는 평면
+    const floorGeo = new THREE.ShapeGeometry(shape);
+    // 벽 — ExtrudeGeometry로 높이 생성
+    const wallGeo = new THREE.ExtrudeGeometry(shape, {
       depth: WALL_HEIGHT,
       bevelEnabled: false,
     });
+    return { floorGeo, wallGeo };
   }, [points, canvasW, canvasH]);
 
+  if (!floorGeo || !wallGeo) return null;
+
   return (
-    <mesh
-      geometry={geometry}
-      rotation={[Math.PI / 2, 0, 0]}
-      position={[0, 0, 0]}
-    >
-      <meshStandardMaterial
-        color={color}
-        transparent
-        opacity={0.35}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
+    <group>
+      {/* 바닥 */}
+      <mesh
+        geometry={floorGeo}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0.01, 0]}
+      >
+        <meshStandardMaterial
+          color={color}
+          transparent
+          opacity={0.6}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      {/* 벽 */}
+      <mesh
+        geometry={wallGeo}
+        rotation={[-Math.PI / 2, 0, 0]}
+        position={[0, 0, 0]}
+      >
+        <meshStandardMaterial
+          color={color}
+          transparent
+          opacity={0.5}
+          side={THREE.DoubleSide}
+          wireframe={false}
+        />
+      </mesh>
+    </group>
   );
 }
 
@@ -380,8 +465,11 @@ export function House3DViewScreen({ route }: Props) {
       {/* 3D 캔버스 */}
       <Canvas
         style={styles.canvas}
-        camera={{ position: [5, 6, 8], fov: 50 }}
+        camera={{ position: [3, 5, 6], fov: 55 }}
         shadows
+        onTouchStart={onCameraStart}
+        onTouchMove={onCameraMove}
+        onTouchEnd={onCameraEnd}
       >
         <Scene
           bp={bp}
@@ -466,16 +554,16 @@ export function House3DViewScreen({ route }: Props) {
 
             {!furniturePage ? (
               <ActivityIndicator style={{ marginTop: 40 }} />
-            ) : furniturePage.items.length === 0 ? (
+            ) : (furniturePage.items ?? []).length === 0 ? (
               <View style={styles.emptyWrap}>
                 <Text style={styles.emptyText}>등록된 가구가 없습니다.</Text>
                 <Text style={styles.emptyHint}>
-                  가구 탭에서 먼저 가구를 추가해 주세요.
+                  하단 가구 탭에서 먼저 가구를 등록해 주세요.
                 </Text>
               </View>
             ) : (
               <FlatList
-                data={furniturePage.items}
+                data={furniturePage.items ?? []}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                   <TouchableOpacity

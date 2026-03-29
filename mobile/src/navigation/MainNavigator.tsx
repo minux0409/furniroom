@@ -2,6 +2,7 @@ import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type {
   MainTabParamList,
   HomeStackParamList,
@@ -135,6 +136,7 @@ function tabIcon(
 }
 
 export function MainNavigator() {
+  const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
       screenOptions={{
@@ -144,8 +146,8 @@ export function MainNavigator() {
           backgroundColor: "#FFFFFF",
           borderTopWidth: 0.5,
           borderTopColor: "#E5E5E5",
-          height: 60,
-          paddingBottom: 8,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom + 8,
           paddingTop: 6,
         },
         tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },

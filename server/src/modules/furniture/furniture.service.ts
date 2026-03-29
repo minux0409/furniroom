@@ -15,11 +15,12 @@ export class FurnitureService {
   // 내 가구 목록 조회
   // ============================================================
   async findAllMine(userId: string) {
-    return this.prisma.furniture.findMany({
+    const items = await this.prisma.furniture.findMany({
       where: { ownerId: userId },
       orderBy: { createdAt: 'desc' },
       include: { tags: true },
     });
+    return { items, total: items.length };
   }
 
   // ============================================================

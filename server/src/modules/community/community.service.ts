@@ -38,7 +38,7 @@ export class CommunityService {
           name: true,
           thumbnailUrl: true,
           createdAt: true,
-          user: { select: { id: true, nickname: true, profileImageUrl: true } },
+          user: { select: { id: true, name: true, profileImageUrl: true } },
         },
       }),
       this.prisma.house.count({ where }),
@@ -52,7 +52,7 @@ export class CommunityService {
     const house = await this.prisma.house.findFirst({
       where: { id, isPublic: true },
       include: {
-        user: { select: { id: true, nickname: true, profileImageUrl: true } },
+        user: { select: { id: true, name: true, profileImageUrl: true } },
         placements: {
           include: {
             furniture: {
@@ -147,11 +147,11 @@ export class CommunityService {
         select: {
           id: true,
           name: true,
-          thumbnailUrl: true,
+          imageUrl: true,
           shapeType: true,
           createdAt: true,
           tags: { select: { tag: true } },
-          owner: { select: { id: true, nickname: true } },
+          owner: { select: { id: true, name: true } },
         },
       }),
       this.prisma.furniture.count({ where }),

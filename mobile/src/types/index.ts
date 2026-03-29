@@ -3,7 +3,7 @@
 export interface User {
   id: string;
   email: string;
-  nickname: string;
+  name: string;
   profileImageUrl: string | null;
   authProvider: "google" | "apple";
   createdAt: string;
