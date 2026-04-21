@@ -7,9 +7,12 @@ export const APP_CONFIG = {
   // ============================================================
   // 🌐 API 서버
   // ============================================================
-  API_BASE_URL: __DEV__
-    ? "http://192.168.219.102:3000/api/v1" // 실기기 → 컴퓨터 로컬 IP
-    : "https://api.furniroom.com/api/v1", // 프로덕션
+  // EAS 빌드 시 eas.json의 EXPO_PUBLIC_API_BASE_URL이 주입됨
+  // 로컬 개발 시에는 컴퓨터 IP를 직접 수정해서 사용
+  API_BASE_URL: process.env.EXPO_PUBLIC_API_BASE_URL
+    ?? ((__DEV__)
+      ? "http://192.168.219.102:3000/api/v1"
+      : "http://api.caramelpeanut.com/api/v1"),
 
   // ============================================================
   // 🔑 Google OAuth
